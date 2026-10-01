@@ -236,6 +236,35 @@
             border: 1px dashed rgba(255, 255, 255, 0.1);
         }
 
+        /* Notificación Minimalista Superior Derecha */
+        #toast-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(18, 16, 25, 0.95);
+            border: 1px solid var(--neon-cyan);
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+            z-index: 2000;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+        }
+
+        #toast-notification.show {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
         /* Modal / Panel del Carrito */
         .cart-modal {
             display: none;
@@ -389,6 +418,9 @@
 </head>
 <body>
 
+    <!-- Notificación Minimalista -->
+    <div id="toast-notification">✨ <span id="toast-message">Producto agregado</span></div>
+
     <div class="container">
         <!-- Cabecera -->
         <header>
@@ -452,6 +484,15 @@
             renderizarItemsCarrito();
         }
 
+        function mostrarNotificacion(mensaje) {
+            const toast = document.getElementById('toast-notification');
+            document.getElementById('toast-message').innerText = mensaje;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
         function cargarCatalogoPublico() {
             fetch('/api/productos')
                 .then(res => res.json())
@@ -491,7 +532,7 @@
             carrito.push(producto);
             localStorage.setItem('carrito', JSON.stringify(carrito));
             actualizarContadorCarrito();
-            abrirCarrito(); // Abre el modal automáticamente para que vea lo que agregó
+            mostrarNotificacion(`"${producto.nombre}" agregado al carrito`);
         }
 
         function eliminarDelCarrito(index) {
