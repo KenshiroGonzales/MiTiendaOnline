@@ -1,0 +1,16 @@
+{
+  "name": "catalogo-whatsapp",
+  "version": "1.0.0",
+  "description": "Catalogo web con carrito y pedido por WhatsApp",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "multer": "^2.4.0",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^6.0.1"
+  }
+}

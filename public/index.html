@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAPE LAB | Cloud & Flavors</title>
+    <style>
+        :root {
+            --bg-base: #08070b;
+            --card-bg: #121019;
+            --neon-cyan: #00f0ff;
+            --neon-pink: #ff007f;
+            --neon-purple: #9d00ff;
+            --text-main: #ffffff;
+            --text-muted: #a09ab0;
+            --border-glow: rgba(0, 240, 255, 0.3);
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(157, 0, 255, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 240, 255, 0.1) 0%, transparent 40%);
+            background-attachment: fixed;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        /* Header Urbano */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .logo-area h1 {
+            font-size: 26px;
+            font-weight: 900;
+            margin: 0;
+            background: linear-gradient(45deg, var(--neon-cyan), var(--neon-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .logo-area p {
+            margin: 2px 0 0 0;
+            font-size: 12px;
+            color: var(--text-muted);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .cart-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            padding: 10px 18px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.1);
+        }
+
+        .cart-btn:hover {
+            background: var(--neon-cyan);
+            color: #000;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+        }
+
+        /* Hero Banner Estilo Neón */
+        .hero-banner {
+            background: linear-gradient(135deg, rgba(18, 16, 25, 0.8), rgba(26, 15, 35, 0.9));
+            border: 1px solid var(--border-glow);
+            border-radius: 16px;
+            padding: 50px 30px;
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .hero-banner h2 {
+            font-size: 36px;
+            font-weight: 800;
+            margin: 0 0 15px 0;
+            color: #fff;
+        }
+
+        .hero-banner h2 span {
+            color: var(--neon-pink);
+            text-shadow: 0 0 15px rgba(255, 0, 127, 0.5);
+        }
+
+        .hero-banner p {
+            color: var(--text-muted);
+            font-size: 16px;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+
+        /* Título del Catálogo */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .section-header h3 {
+            font-size: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0;
+        }
+
+        .section-header::after {
+            content: '';
+            flex-grow: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Grilla de Productos */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 25px;
+        }
+
+        .product-card {
+            background-color: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .product-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--neon-cyan);
+            box-shadow: 0 10px 25px rgba(0, 240, 255, 0.15);
+        }
+
+        .product-image-container {
+            width: 100%;
+            height: 200px;
+            background: #000;
+            position: relative;
+        }
+
+        .product-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .product-card:hover .product-image-container img {
+            transform: scale(1.08);
+        }
+
+        .product-info {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .product-title {
+            font-size: 17px;
+            font-weight: 700;
+            margin: 0 0 8px 0;
+            color: #fff;
+        }
+
+        .product-price {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--neon-cyan);
+            margin-bottom: 12px;
+        }
+
+        .product-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.4;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
+        .btn-buy {
+            background: linear-gradient(135deg, var(--neon-cyan), #0088ff);
+            color: #000;
+            border: none;
+            padding: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 1px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: opacity 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+
+        .btn-buy:hover {
+            opacity: 0.9;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+        }
+
+        .empty-catalog {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 50px;
+            color: var(--text-muted);
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 20px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--text-muted);
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Cabecera -->
+        <header>
+            <div class="logo-area">
+                <h1>Vape Shop DK</h1>
+                <p>Flavors & Clouds</p>
+            </div>
+            <button class="cart-btn" onclick="alert('Tu carrito está vacío.')">
+                🛒 Carrito (<span id="cart-count">0</span>)
+            </button>
+        </header>
+
+        <!-- Banner llamativo estilo neón -->
+        <div class="hero-banner">
+            <h2>Elevate Your <span>Experience</span></h2>
+            <p>Los mejores dispositivos, máxima duración y los sabores más brutales del mercado en un solo lugar.</p>
+        </div>
+
+        <!-- Título de Sección -->
+        <div class="section-header">
+            <h3>Disponibles ahora</h3>
+        </div>
+
+        <!-- Grilla de Productos Dinámica -->
+        <div class="product-grid" id="public-product-grid">
+            <!-- Cargado por JavaScript -->
+        </div>
+
+        <footer>
+            &copy; 2026 VAPE LAB. Venta exclusiva para mayores de edad.
+        </footer>
+    </div>
+
+    <script>
+        function cargarCatalogoPublico() {
+            fetch('/api/productos')
+                .then(res => res.json())
+                .then(productos => {
+                    const grid = document.getElementById('public-product-grid');
+                    grid.innerHTML = '';
+
+                    if (productos.length === 0) {
+                        grid.innerHTML = `<div class="empty-catalog">No hay productos en stock por el momento.</div>`;
+                        return;
+                    }
+
+                    productos.forEach(prod => {
+                        const card = document.createElement('div');
+                        card.className = 'product-card';
+                        card.innerHTML = `
+                            <div class="product-image-container">
+                                <img src="${prod.imagen}" alt="${prod.nombre}" onerror="this.src='https://via.placeholder.com/400x300?text=Sin+Imagen'">
+                            </div>
+                            <div class="product-info">
+                                <h3 class="product-title">${prod.nombre}</h3>
+                                <div class="product-price">${prod.precio.toFixed(2)} Bs</div>
+                                <p class="product-desc">${prod.descripcion}</p>
+                                <button class="btn-buy" onclick="agregarAlCarrito('${prod.nombre}')">Lo quiero</button>
+                            </div>
+                        `;
+                        grid.appendChild(card);
+                    });
+                })
+                .catch(err => {
+                    console.error('Error al cargar la tienda:', err);
+                    document.getElementById('public-product-grid').innerHTML = `<div class="empty-catalog">Error de conexión con el servidor.</div>`;
+                });
+        }
+
+        function agregarAlCarrito(nombre) {
+            alert(`¡"${nombre}" agregado al carrito!`);
+        }
+
+        cargarCatalogoPublico();
+    </script>
+</body>
+</html>
