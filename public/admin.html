@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Admin | VAPE LAB</title>
+    <title>Panel Admin | VAPE SHOP DK</title>
     <style>
         :root {
             --bg-base: #08070b;
@@ -98,6 +98,12 @@
             color: #fff;
             font-size: 14px;
             box-sizing: border-box;
+        }
+
+        input[type="file"] {
+            padding: 8px;
+            cursor: pointer;
+            color: var(--text-muted);
         }
 
         input:focus, textarea:focus {
@@ -238,8 +244,9 @@
                     <input type="number" step="0.01" id="precio" required placeholder="120.00">
                 </div>
                 <div class="form-group">
-                    <label>URL de la imagen</label>
-                    <input type="text" id="imagen" required placeholder="https://...">
+                    <label>Imagen del producto (Desde tu equipo)</label>
+                    <input type="file" id="imagen-file" accept="image/*" onchange="convertirImagen(event)">
+                    <input type="hidden" id="imagen-base64">
                 </div>
                 <div class="form-group">
                     <label>Descripción</label>
@@ -261,6 +268,19 @@
 
     <script>
         let editandoId = null;
+        let imagenActualBase64 = '';
+
+        function convertirImagen(event) {
+            const archivo = event.target.files[0];
+            if (archivo) {
+                const lector = new FileReader();
+                lector.onload = function(e) {
+                    imagenActualBase64 = e.target.result;
+                    document.getElementById('imagen-base64').value = imagenActualBase64;
+                };
+                lector.readAsDataURL(archivo);
+            }
+        }
 
         function cargarProductosAdmin() {
             fetch('/api/productos')
@@ -298,11 +318,23 @@
         function guardarProducto(event) {
             event.preventDefault();
 
+            const nombre = document.getElementById('nombre').value;
+            const precio = parseFloat(document.getElementById('precio').value);
+            const descripcion = document.getElementById('descripcion').value;
+            const imagenInput = document.getElementById('imagen-file').files[0];
+
+            // Si está editando y no seleccionó una nueva imagen, conservamos la que ya tenía
+            let imagenFinal = imagenActualBase64;
+            if (!imagenFinal && !editandoId) {
+                alert("Por favor selecciona una imagen para el producto.");
+                return;
+            }
+
             const productoData = {
-                nombre: document.getElementById('nombre').value,
-                precio: parseFloat(document.getElementById('precio').value),
-                imagen: document.getElementById('imagen').value,
-                descripcion: document.getElementById('descripcion').value
+                nombre,
+                precio,
+                imagen: imagenFinal || undefined,
+                descripcion
             };
 
             const url = editandoId ? `/api/productos/${editandoId}` : '/api/productos';
@@ -326,8 +358,9 @@
             document.getElementById('product-id').value = prod.id;
             document.getElementById('nombre').value = prod.nombre;
             document.getElementById('precio').value = prod.precio;
-            document.getElementById('imagen').value = prod.imagen;
             document.getElementById('descripcion').value = prod.descripcion;
+            
+            imagenActualBase64 = prod.imagen; // Mantener la imagen actual si no se cambia
 
             document.getElementById('form-title').innerText = `Editando: ${prod.nombre}`;
             document.getElementById('btn-submit-text').innerText = 'Actualizar Cambios';
@@ -338,6 +371,7 @@
 
         function limpiarFormulario() {
             editandoId = null;
+            imagenActualBase64 = '';
             document.getElementById('product-form').reset();
             document.getElementById('product-id').value = '';
             document.getElementById('form-title').innerText = 'Agregar Nuevo Producto';
