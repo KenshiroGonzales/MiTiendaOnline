@@ -257,7 +257,7 @@
                 <h1>Vape Shop DK</h1>
                 <p>Flavors & Clouds</p>
             </div>
-            <button class="cart-btn" onclick="alert('Tu carrito está vacío.')">
+            <button class="cart-btn" onclick="alert('Tu carrito tiene ' + carrito.length + ' producto(s).')">
                 🛒 Carrito (<span id="cart-count">0</span>)
             </button>
         </header>
@@ -284,6 +284,12 @@
     </div>
 
     <script>
+        let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+
+        function actualizarContadorCarrito() {
+            document.getElementById('cart-count').innerText = carrito.length;
+        }
+
         function cargarCatalogoPublico() {
             fetch('/api/productos')
                 .then(res => res.json())
@@ -307,7 +313,7 @@
                                 <h3 class="product-title">${prod.nombre}</h3>
                                 <div class="product-price">${prod.precio.toFixed(2)} Bs</div>
                                 <p class="product-desc">${prod.descripcion}</p>
-                                <button class="btn-buy" onclick="agregarAlCarrito('${prod.nombre}')">Lo quiero</button>
+                                <button class="btn-buy" onclick='agregarAlCarrito(${JSON.stringify(prod)})'>Lo quiero</button>
                             </div>
                         `;
                         grid.appendChild(card);
@@ -319,10 +325,15 @@
                 });
         }
 
-        function agregarAlCarrito(nombre) {
-            alert(`¡"${nombre}" agregado al carrito!`);
+        function agregarAlCarrito(producto) {
+            carrito.push(producto);
+            localStorage.setItem('carrito', JSON.stringify(carrito));
+            actualizarContadorCarrito();
+            alert(`¡"${producto.nombre}" agregado al carrito!`);
         }
 
+        // Inicializar al cargar la página
+        actualizarContadorCarrito();
         cargarCatalogoPublico();
     </script>
 </body>
