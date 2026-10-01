@@ -236,6 +236,145 @@
             border: 1px dashed rgba(255, 255, 255, 0.1);
         }
 
+        /* Modal / Panel del Carrito */
+        .cart-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .cart-modal.active {
+            display: flex;
+        }
+
+        .cart-content {
+            background: var(--card-bg);
+            border: 1px solid var(--neon-cyan);
+            width: 90%;
+            max-width: 500px;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.2);
+            position: relative;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .cart-header h3 {
+            margin: 0;
+            font-size: 20px;
+            color: #fff;
+        }
+
+        .close-cart {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .close-cart:hover {
+            color: #fff;
+        }
+
+        .cart-items-list {
+            overflow-y: auto;
+            max-height: 40vh;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .cart-item-info h4 {
+            margin: 0 0 5px 0;
+            font-size: 15px;
+            color: #fff;
+        }
+
+        .cart-item-info span {
+            font-size: 13px;
+            color: var(--neon-cyan);
+            font-weight: bold;
+        }
+
+        .btn-remove {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff4444;
+            color: #ff4444;
+            padding: 5px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-remove:hover {
+            background: #ff4444;
+            color: #fff;
+        }
+
+        .cart-footer {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 15px;
+            text-align: center;
+        }
+
+        .cart-total {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .btn-whatsapp {
+            background: #25D366;
+            color: #fff;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 14px;
+            width: 100%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 0 15px rgba(37, 211, 102, 0.4);
+            transition: opacity 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-whatsapp:hover {
+            opacity: 0.9;
+        }
+
         /* Footer */
         footer {
             text-align: center;
@@ -257,7 +396,7 @@
                 <h1>Vape Shop DK</h1>
                 <p>Flavors & Clouds</p>
             </div>
-            <button class="cart-btn" onclick="verCarritoWhatsApp()">
+            <button class="cart-btn" onclick="abrirCarrito()">
                 🛒 Carrito (<span id="cart-count">0</span>)
             </button>
         </header>
@@ -283,11 +422,34 @@
         </footer>
     </div>
 
+    <!-- Modal del Carrito -->
+    <div class="cart-modal" id="cartModal">
+        <div class="cart-content">
+            <div class="cart-header">
+                <h3>Tu Carrito de Compras</h3>
+                <button class="close-cart" onclick="cerrarCarrito()">&times;</button>
+            </div>
+            <div class="cart-items-list" id="cartItemsList">
+                <!-- Se llena dinámicamente -->
+            </div>
+            <div class="cart-footer">
+                <div class="cart-total">
+                    <span>Total:</span>
+                    <span id="cartTotalAmount">0.00 Bs</span>
+                </div>
+                <button class="btn-whatsapp" onclick="enviarPedidoWhatsApp()">
+                    💬 Pedir por WhatsApp (+591 76415820)
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
 
         function actualizarContadorCarrito() {
             document.getElementById('cart-count').innerText = carrito.length;
+            renderizarItemsCarrito();
         }
 
         function cargarCatalogoPublico() {
@@ -329,26 +491,69 @@
             carrito.push(producto);
             localStorage.setItem('carrito', JSON.stringify(carrito));
             actualizarContadorCarrito();
-            alert(`¡"${producto.nombre}" agregado al carrito!`);
+            abrirCarrito(); // Abre el modal automáticamente para que vea lo que agregó
         }
 
-        function verCarritoWhatsApp() {
+        function eliminarDelCarrito(index) {
+            carrito.splice(index, 1);
+            localStorage.setItem('carrito', JSON.stringify(carrito));
+            actualizarContadorCarrito();
+        }
+
+        function renderizarItemsCarrito() {
+            const listContainer = document.getElementById('cartItemsList');
+            const totalContainer = document.getElementById('cartTotalAmount');
+            listContainer.innerHTML = '';
+
+            if (carrito.length === 0) {
+                listContainer.innerHTML = `<p style="text-align: center; color: var(--text-muted); margin: 20px 0;">Tu carrito está vacío.</p>`;
+                totalContainer.innerText = '0.00 Bs';
+                return;
+            }
+
+            let total = 0;
+            carrito.forEach((item, index) => {
+                total += item.precio;
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'cart-item';
+                itemDiv.innerHTML = `
+                    <div class="cart-item-info">
+                        <h4>${item.nombre}</h4>
+                        <span>${item.precio.toFixed(2)} Bs</span>
+                    </div>
+                    <button class="btn-remove" onclick="eliminarDelCarrito(${index})">Eliminar</button>
+                `;
+                listContainer.appendChild(itemDiv);
+            });
+
+            totalContainer.innerText = total.toFixed(2) + ' Bs';
+        }
+
+        function abrirCarrito() {
+            document.getElementById('cartModal').classList.add('active');
+            renderizarItemsCarrito();
+        }
+
+        function cerrarCarrito() {
+            document.getElementById('cartModal').classList.remove('active');
+        }
+
+        function enviarPedidoWhatsApp() {
             if (carrito.length === 0) {
                 alert("Tu carrito está vacío.");
                 return;
             }
 
-            let mensaje = "Hola! VAPE LAB, quiero hacer el siguiente pedido:%0A";
+            let mensaje = "Hola VAPE LAB! Quiero hacer el siguiente pedido:%0A";
             let total = 0;
 
-            carrito.forEach((item, index) => {
+            carrito.forEach((item) => {
                 mensaje += `%0A- ${item.nombre} (${item.precio.toFixed(2)} Bs)`;
                 total += item.precio;
             });
 
             mensaje += `%0A%0A*Total a pagar: ${total.toFixed(2)} Bs*`;
 
-            // Número configurado: +591 76415820
             let telefono = "59176415820";
             let url = `https://wa.me/${telefono}?text=${mensaje}`;
             
