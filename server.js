@@ -4,43 +4,41 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware para procesar JSON grandes (necesario si subes imágenes en Base64) y archivos estáticos
+// Middleware para procesar JSON grandes e imágenes en Base64
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Asegurar carpeta uploads local por si se requiere
+// Asegurar carpeta uploads local
 const uploadDir = path.join(__dirname, 'public', 'uploads');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// Base de datos en memoria 
-let productos = [
-    {
-        id: 1,
-        nombre: "Elf Bar BC5000",
-        precio: 120.00,
-        imagen: "https://images.unsplash.com/photo-1539185441755-769473a23570?auto=format&fit=crop&w=600&q=80",
-        descripcion: "Dispositivo desechable con hasta 5000 caladas y sabores frutales intensos."
-    },
-    {
-        id: 2,
-        nombre: "Lost Mary BM6000",
-        precio: 140.00,
-        imagen: "https://images.unsplash.com/photo-1527661591475-527312dd65f5?auto=format&fit=crop&w=600&q=80",
-        descripcion: "Diseño ergonómico compacto, batería recargable y excelente rendimiento."
-    },
-    {
-        id: 3,
-        nombre: "Juul Dispositivo Starter Kit",
-        precio: 180.00,
-        imagen: "https://images.unsplash.com/photo-1563227812-0ea4c22e6cc8?auto=format&fit=crop&w=600&q=80",
-        descripcion: "Sistema de pods elegante, fácil de usar y con calada suave."
-    }
-];
+// Archivo JSON para persistencia local de productos
+const dataFile = path.join(__dirname, 'productos.json');
 
-let nextId = 4;
+let productos = [];
+let nextId = 1;
+
+// Cargar productos guardados previamente si el archivo existe
+if (fs.existsSync(dataFile)) {
+    try {
+        const data = fs.readFileSync(dataFile, 'utf8');
+        productos = JSON.parse(data);
+        if (productos.length > 0) {
+            nextId = Math.max(...productos.map(p => p.id)) + 1;
+        }
+    } catch (err) {
+        console.error("Error al leer el archivo de productos:", err);
+        productos = [];
+    }
+}
+
+// Función para guardar cambios en el archivo JSON
+function guardarProductosEnDisco() {
+    fs.writeFileSync(dataFile, JSON.stringify(productos, null, 2));
+}
 
 // Rutas de las vistas
 app.get('/', (req, res) => {
@@ -72,6 +70,7 @@ app.post('/api/productos', (req, res) => {
     };
 
     productos.push(nuevoProducto);
+    guardarProductosEnDisco(); // Guardar cambios
     res.status(201).json(nuevoProducto);
 });
 
@@ -93,6 +92,7 @@ app.put('/api/productos/:id', (req, res) => {
         descripcion: descripcion || productos[index].descripcion
     };
 
+    guardarProductosEnDisco(); // Guardar cambios
     res.json(productos[index]);
 });
 
@@ -106,6 +106,7 @@ app.delete('/api/productos/:id', (req, res) => {
     }
 
     const eliminado = productos.splice(index, 1);
+    guardarProductosEnDisco(); // Guardar cambios
     res.json({ success: true, eliminado: eliminado[0] });
 });
 
