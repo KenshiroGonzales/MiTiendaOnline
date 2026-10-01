@@ -257,7 +257,7 @@
                 <h1>Vape Shop DK</h1>
                 <p>Flavors & Clouds</p>
             </div>
-            <button class="cart-btn" onclick="alert('Tu carrito tiene ' + carrito.length + ' producto(s).')">
+            <button class="cart-btn" onclick="verCarritoWhatsApp()">
                 🛒 Carrito (<span id="cart-count">0</span>)
             </button>
         </header>
@@ -330,6 +330,29 @@
             localStorage.setItem('carrito', JSON.stringify(carrito));
             actualizarContadorCarrito();
             alert(`¡"${producto.nombre}" agregado al carrito!`);
+        }
+
+        function verCarritoWhatsApp() {
+            if (carrito.length === 0) {
+                alert("Tu carrito está vacío.");
+                return;
+            }
+
+            let mensaje = "Hola! VAPE LAB, quiero hacer el siguiente pedido:%0A";
+            let total = 0;
+
+            carrito.forEach((item, index) => {
+                mensaje += `%0A- ${item.nombre} (${item.precio.toFixed(2)} Bs)`;
+                total += item.precio;
+            });
+
+            mensaje += `%0A%0A*Total a pagar: ${total.toFixed(2)} Bs*`;
+
+            // Número configurado: +591 76415820
+            let telefono = "59176415820";
+            let url = `https://wa.me/${telefono}?text=${mensaje}`;
+            
+            window.open(url, '_blank');
         }
 
         // Inicializar al cargar la página
